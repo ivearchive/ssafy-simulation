@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SSAFY 요정과 함께하는 취업 로맨스</title>
+    <style>
+      body {
+        background: #eef5ff;
+        font-family: "Pretendard", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      #game-container {
+        width: 900px;
+        height: 600px;
+        background: #fff;
+        position: relative;
+        border: 6px solid #0054a6;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 시작 화면 스타일 */
+      #start-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("새 프로젝트2.png") no-repeat center;
+        background-size: contain;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        padding-bottom: 40px;
+        box-sizing: border-box;
+      }
+      #start-btn {
+        padding: 10px 40px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(45deg, #0054a6, #00d4ff);
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 84, 166, 0.4);
+        transition: 0.3s;
+      }
+      #start-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 20px rgba(0, 84, 166, 0.6);
+      }
+
+      /* 인게임 배경 및 캐릭터 */
+      .bg-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("background.jpeg") no-repeat center;
+        background-size: cover;
+        opacity: 0.5;
+        z-index: 1;
+      }
+      #character-container {
+        position: absolute;
+        bottom: 150px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        transition: 0.5s;
+        z-index: 2;
+      }
+      #character {
+        height: 350px;
+        filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.3));
+      }
+
+      /* 대화창 */
+      #dialogue-box {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 160px;
+        background: rgba(0, 84, 166, 0.9);
+        color: white;
+        padding: 30px;
+        box-sizing: border-box;
+        cursor: pointer;
+        z-index: 10;
+        display: none;
+      }
+      #name-tag {
+        position: absolute;
+        top: -35px;
+        left: 30px;
+        background: #00d4ff;
+        color: #002c5c;
+        padding: 8px 25px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        border-radius: 10px 10px 0 0;
+      }
+      #text {
+        font-size: 1.3rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* 선택지 */
+      #choices {
+        position: absolute;
+        top: 180px;
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        z-index: 20;
+      }
+      .choice-btn {
+        width: 350px;
+        padding: 15px;
+        background: white;
+        border: 3px solid #00d4ff;
+        color: #0054a6;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        transition: 0.3s;
+      }
+      .choice-btn:hover {
+        background: #00d4ff;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="start-screen">
+        <button id="start-btn" onclick="startGame()">게임 시작</button>
+      </div>
+
+      <div class="bg-overlay"></div>
+      <div id="character-container" style="display: none">
+        <img id="character" src="statty.png" alt="SSAFY 요정" />
+      </div>
+      <div id="choices"></div>
+      <div id="dialogue-box">
+        <div id="name-tag">싸피 요정 (STATTY)</div>
+        <p id="text"></p>
+      </div>
+    </div>
+
+    <script>
+      const images = {
+        statty: "statty.png",
+        algo: "alg.png",
+        fit: "fit.png",
+        wise: "wise.png",
+      };
+
+      const script = [
+        {
+          text: "안녕? 너가 미래의 최고 개발자가 되고 싶은 친구구나! 반가워!",
+          char: "statty",
+        },
+        {
+          text: "난 네 성장을 도와줄 싸피 요정 Statty야! 넌 어떤 역량을 키우고 싶어?",
+          char: "statty",
+          choices: [
+            { btn: "코딩의 정석, 알고리즘 정복!", next: 2, char: "algo" },
+            { btn: "실전 프로젝트로 포트폴리오 완성!", next: 3, char: "fit" },
+          ],
+        },
+        {
+          text: "싸피와 함께라면 어떤 복잡한 알고리즘 문제도 문제없지! 1년 뒤에 넌 알고리즘 고수!",
+          char: "algo",
+          next: 4,
+        },
+        {
+          text: "핏한 프로젝트로 실력을 키우고 싶구나? 만약 싸피와 함께라면 수준별 SW 교육과 최고의 강사님들이 널 도와줄 거야.",
+          char: "fit",
+          next: 4,
+        },
+        {
+          text: "참! 우리 Wise가 말해주는데, 싸피를 하면 매달 100만원의 교육지원금도 준대! 심지어 다양하고 맛있는 중식까지 무료 제공이라고?!",
+          char: "wise",
+        },
+        {
+          text: `자, 어때? 이제 나랑 같이 SSAFY로 떠나볼까?`,
+          char: "statty",
+          choices: [
+            { btn: "응 같이 떠나자!", next: "MOVE_TO_SITE" },
+            { btn: "아니.. 조금 더 고민해볼래", next: "RESTART_GAME" },
+          ],
+        },
+      ];
+
+      let currentStep = 0;
+      const textEl = document.getElementById("text");
+      const nameEl = document.getElementById("name-tag");
+      const charImg = document.getElementById("character");
+      const choicesEl = document.getElementById("choices");
+
+      function startGame() {
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("character-container").style.display = "flex";
+        document.getElementById("dialogue-box").style.display = "block";
+
+        updateScene();
+      }
+
+      document.getElementById("dialogue-box").addEventListener("click", () => {
+        if (choicesEl.style.display === "flex") return;
+
+        const current = script[currentStep];
+
+        if (current && typeof current.next === "number") {
+          currentStep = current.next;
+        } else {
+          currentStep++;
+        }
+
+        if (currentStep < script.length) {
+          updateScene();
+        } else if (currentStep === script.length) {
+          window.open("https://www.ssafy.com", "_blank");
+        }
+      });
+
+      function updateScene() {
+        const current = script[currentStep];
+        textEl.innerText = current.text;
+
+        if (current.char) {
+          nameEl.innerText = `싸피 요정 (${current.char.toUpperCase()})`;
+          charImg.src = images[current.char];
+        }
+
+        if (current.choices) {
+          showChoices(current.choices);
+        } else {
+          choicesEl.style.display = "none";
+        }
+      }
+
+      function showChoices(choices) {
+        choicesEl.innerHTML = "";
+        choices.forEach((c) => {
+          const btn = document.createElement("button");
+          btn.className = "choice-btn";
+          btn.innerText = c.btn;
+          btn.onclick = (e) => {
+            e.stopPropagation();
+
+            if (c.next === "MOVE_TO_SITE") {
+              window.open("https://www.ssafy.com", "_blank");
+            } else if (c.next === "RESTART_GAME") {
+              location.reload();
+            } else {
+              currentStep = c.next;
+              choicesEl.style.display = "none";
+              updateScene();
+            }
+          };
+          choicesEl.appendChild(btn);
+        });
+        choicesEl.style.display = "flex";
+      }
+    </script>
+  </body>
+</html>
